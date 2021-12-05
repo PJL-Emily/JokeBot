@@ -1,25 +1,48 @@
 import os
-from flask import Flask, abort, request
+from flask import Flask, abort, request, g
+from flask_script import Manager
 from datetime import datetime
 # https://github.com/line/line-bot-sdk-python
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-# from linebot.models import (
-#     RichMenu,
-#     RichMenuArea,
-#     RichMenuSize,
-#     RichMenuBounds,
-#     URIAction
-# )
-# from linebot.models.actions import RichMenuSwitchAction
-# from linebot.models.rich_menu import RichMenuAlias
+import sqlite3
 
 app = Flask(__name__)
+manager = Manager(app)
 
 line_bot_api = LineBotApi(os.environ.get("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.environ.get("CHANNEL_SECRET"))
 
+DATABASE = "database.db"
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+        # Enable foreign key check
+        db.execute("PRAGMA foreign_keys = ON")
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+def remove_db():
+    if os.path.isfile(DATABASE):
+        os.remove(DATABASE) 
+
+if __name__ == '__main__':
+    manager.run()
 
 @app.route("/", methods=["GET", "POST"])
 def callback():
@@ -36,94 +59,33 @@ def callback():
 
         return "OK"
 
-##############
-## messages ##
-##############
+choice_work_text='JokeBot! 準備好沒，我要交付你待辦事項了!!'
+choice_ddl_text='JokeBot，一周內有哪些死線？我準備要起跑了！'
+choice_joke_text='JokeBot... 我累了... 來點 Joke...'
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     get_message = event.message.text
-
+    if get_message.find("完成了") != -1:
+        task_name = get_message[:get_message.find("完成了")]
+        # find task
+        # set task.isFinished = 1
+        reply = '恭喜完成' + task_name + '！你好棒～～'
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
+    elif get_message == choice_work_text: 
+        reply = "好，來吧！首先跟我說待辦事項標題"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))        
+    elif get_message == choice_ddl_text: 
+        reply = "一周內有：\n12/8 MDS proposal\n12/10 OR hw8"
+        reply += "\n你再不跑快點我看是完蛋"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
+    elif get_message == choice_joke_text: 
+        reply = "文藝青年被噴防蚊液就變普通青年"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
+    else:
+        reply = "嗡嗡嗡 快上工！"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
+    
     # Send To Line
     reply = TextSendMessage(text=f"{get_message}")
     line_bot_api.reply_message(event.reply_token, reply)
-
-###############
-## rich menu ##
-###############
-
-# def rich_menu_object_a_json():
-#     return {
-#         "size": {
-#             "width": 2500,
-#             "height": 1686
-#         },
-#         "selected": False,
-#         "name": "richmenu-a",
-#         "chatBarText": "Tap to open",
-#         "areas": [
-#             {
-#                 "bounds": {
-#                     "x": 0,
-#                     "y": 0,
-#                     "width": 1250,
-#                     "height": 1686
-#                 },
-#                 "action": {
-#                     "type": "uri",
-#                     "uri": "https://www.line-community.me/"
-#                 }
-#             },
-#             {
-#                 "bounds": {
-#                     "x": 1251,
-#                     "y": 0,
-#                     "width": 1250,
-#                     "height": 1686
-#                 },
-#                 "action": {
-#                     "type": "uri",
-#                     "uri": "https://www.facebook.com/"
-#                 }
-#             }
-#         ]
-#     }
-
-
-# def create_action(action):
-#     if action['type'] == 'uri':
-#         return URIAction(type=action['type'], uri=action.get('uri'))
-
-
-# def main():
-#     # 2. Create rich menu A (richmenu-a)
-#     rich_menu_object_a = rich_menu_object_a_json()
-#     areas = [
-#         RichMenuArea(
-#             bounds=RichMenuBounds(
-#                 x=info['bounds']['x'],
-#                 y=info['bounds']['y'],
-#                 width=info['bounds']['width'],
-#                 height=info['bounds']['height']
-#             ),
-#             action=create_action(info['action'])
-#         ) for info in rich_menu_object_a['areas']
-#     ]
-
-#     rich_menu_to_a_create = RichMenu(
-#         size=RichMenuSize(width=rich_menu_object_a['size']['width'], height=rich_menu_object_a['size']['height']),
-#         selected=rich_menu_object_a['selected'],
-#         name=rich_menu_object_a['name'],
-#         chat_bar_text=rich_menu_object_a['name'],
-#         areas=areas
-#     )
-
-#     rich_menu_a_id = line_bot_api.create_rich_menu(rich_menu=rich_menu_to_a_create)
-
-#     # 3. Upload image to rich menu A
-#     with open('./img/richmenu-a.png', 'rb') as f:
-#         line_bot_api.set_rich_menu_image(rich_menu_a_id, 'image/png', f)
-
-#     print('success')
-
-
-# main()
