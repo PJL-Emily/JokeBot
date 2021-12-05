@@ -17,13 +17,11 @@ class MongoJSONEncoder(JSONEncoder):
 
 app = Flask(__name__)
 app.json_encoder = MongoJSONEncoder
-load_dotenv()
-MONGO_URI = os.getenv('MONGO_URI')
-client = pymongo.MongoClient(MONGO_URI)
-db = client.TourBot
 
 line_bot_api = LineBotApi(os.environ.get("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.environ.get("CHANNEL_SECRET"))
+client = pymongo.MongoClient(os.environ.get("MONGO_URI"))
+db = client.JokeBot
 
 # line_bot_api = LineBotApi(config.get('line-bot', 'CHANNEL_ACCESS_TOKEN'))
 # handler = WebhookHandler(config.get('line-bot', 'CHANNEL_SECRET'))

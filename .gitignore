@@ -1,6 +1,7 @@
 /examples
 config.ini
 .env
+jokes.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -13,7 +13,7 @@ CREATE TABLE choices (
     sys_reply TEXT NOT NULL
 );
 
-CREATE TABLE current_state (
+CREATE TABLE chat_state (
     id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
     state ENUM("general", "task", "deadline", "joke") DEFAULT "general",
     step INT DEFAULT 0
