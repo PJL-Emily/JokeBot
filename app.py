@@ -76,11 +76,11 @@ def handle_message(event):
         reply = "好，來吧！首先跟我說待辦事項標題"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))        
     elif get_message == choice_ddl_text: 
-        reply = "一周內有：\n12/8 MDS proposal\n12/10 OR hw8"
+        reply = "未完成事項有：\n2021-12-8 MDS proposal\n2021-12-10 OR hw8"
         reply += "\n你再不跑快點我看是完蛋"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
     elif get_message == choice_joke_text: 
-        reply = "文藝青年被噴防蚊液就變普通青年"
+        reply = "小明是個文藝青年，小華一直很看不慣。\n有一天小華終於受不了了，拿起防蚊液就往小明身上噴，\n.\n.\n.\n.\n.\n結果小明就變成一個普通的青年了。"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
     else:
         reply = "嗡嗡嗡 快上工！"
