@@ -50,6 +50,7 @@ def handle_message(event):
 ###############
 ## rich menu ##
 ###############
+
 def rich_menu_object_a_json():
     return {
         "size": {
@@ -80,9 +81,8 @@ def rich_menu_object_a_json():
                     "height": 1686
                 },
                 "action": {
-                    "type": "richmenuswitch",
-                    "richMenuAliasId": "richmenu-alias-b",
-                    "data": "richmenu-changed-to-b"
+                    "type": "uri",
+                    "uri": "https://www.facebook.com/"
                 }
             }
         ]
@@ -92,12 +92,6 @@ def rich_menu_object_a_json():
 def create_action(action):
     if action['type'] == 'uri':
         return URIAction(type=action['type'], uri=action.get('uri'))
-    else:
-        return RichMenuSwitchAction(
-            type=action['type'],
-            rich_menu_alias_id=action.get('richMenuAliasId'),
-            data=action.get('data')
-        )
 
 
 def main():
@@ -126,18 +120,8 @@ def main():
     rich_menu_a_id = line_bot_api.create_rich_menu(rich_menu=rich_menu_to_a_create)
 
     # 3. Upload image to rich menu A
-    with open('./public/richmenu-a.png', 'rb') as f:
+    with open('./img/richmenu-a.png', 'rb') as f:
         line_bot_api.set_rich_menu_image(rich_menu_a_id, 'image/png', f)
-
-    # 6. Set rich menu A as the default rich menu
-    line_bot_api.set_default_rich_menu(rich_menu_b_id)
-
-    # 7. Create rich menu alias A
-    alias_a = RichMenuAlias(
-        rich_menu_alias_id='richmenu-alias-a',
-        rich_menu_id=rich_menu_a_id
-    )
-    line_bot_api.create_rich_menu_alias(alias_a)
 
     print('success')
 
