@@ -4,16 +4,12 @@ from datetime import datetime
 # https://github.com/line/line-bot-sdk-python
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
-# from linebot.models import (
-#     RichMenu,
-#     RichMenuArea,
-#     RichMenuSize,
-#     RichMenuBounds,
-#     URIAction
-# )
-# from linebot.models.actions import RichMenuSwitchAction
-# from linebot.models.rich_menu import RichMenuAlias
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage, 
+    RichMenu, RichMenuArea, RichMenuSize, RichMenuBounds, URIAction
+)
+from linebot.models.actions import RichMenuSwitchAction
+from linebot.models.rich_menu import RichMenuAlias
 
 app = Flask(__name__)
 
@@ -51,79 +47,79 @@ def handle_message(event):
 ## rich menu ##
 ###############
 
-# def rich_menu_object_a_json():
-#     return {
-#         "size": {
-#             "width": 2500,
-#             "height": 1686
-#         },
-#         "selected": False,
-#         "name": "richmenu-a",
-#         "chatBarText": "Tap to open",
-#         "areas": [
-#             {
-#                 "bounds": {
-#                     "x": 0,
-#                     "y": 0,
-#                     "width": 1250,
-#                     "height": 1686
-#                 },
-#                 "action": {
-#                     "type": "uri",
-#                     "uri": "https://www.line-community.me/"
-#                 }
-#             },
-#             {
-#                 "bounds": {
-#                     "x": 1251,
-#                     "y": 0,
-#                     "width": 1250,
-#                     "height": 1686
-#                 },
-#                 "action": {
-#                     "type": "uri",
-#                     "uri": "https://www.facebook.com/"
-#                 }
-#             }
-#         ]
-#     }
+def rich_menu_object_a_json():
+    return {
+        "size": {
+            "width": 2500,
+            "height": 1686
+        },
+        "selected": False,
+        "name": "richmenu-a",
+        "chatBarText": "Tap to open",
+        "areas": [
+            {
+                "bounds": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 1250,
+                    "height": 1686
+                },
+                "action": {
+                    "type": "uri",
+                    "uri": "https://www.line-community.me/"
+                }
+            },
+            {
+                "bounds": {
+                    "x": 1251,
+                    "y": 0,
+                    "width": 1250,
+                    "height": 1686
+                },
+                "action": {
+                    "type": "uri",
+                    "uri": "https://www.facebook.com/"
+                }
+            }
+        ]
+    }
 
 
-# def create_action(action):
-#     if action['type'] == 'uri':
-#         return URIAction(type=action['type'], uri=action.get('uri'))
+def create_action(action):
+    if action['type'] == 'uri':
+        return URIAction(type=action['type'], uri=action.get('uri'))
 
 
-# def main():
-#     # 2. Create rich menu A (richmenu-a)
-#     rich_menu_object_a = rich_menu_object_a_json()
-#     areas = [
-#         RichMenuArea(
-#             bounds=RichMenuBounds(
-#                 x=info['bounds']['x'],
-#                 y=info['bounds']['y'],
-#                 width=info['bounds']['width'],
-#                 height=info['bounds']['height']
-#             ),
-#             action=create_action(info['action'])
-#         ) for info in rich_menu_object_a['areas']
-#     ]
+def main():
+    # 2. Create rich menu A (richmenu-a)
+    rich_menu_object_a = rich_menu_object_a_json()
+    areas = [
+        RichMenuArea(
+            bounds=RichMenuBounds(
+                x=info['bounds']['x'],
+                y=info['bounds']['y'],
+                width=info['bounds']['width'],
+                height=info['bounds']['height']
+            ),
+            action=create_action(info['action'])
+        ) for info in rich_menu_object_a['areas']
+    ]
 
-#     rich_menu_to_a_create = RichMenu(
-#         size=RichMenuSize(width=rich_menu_object_a['size']['width'], height=rich_menu_object_a['size']['height']),
-#         selected=rich_menu_object_a['selected'],
-#         name=rich_menu_object_a['name'],
-#         chat_bar_text=rich_menu_object_a['name'],
-#         areas=areas
-#     )
+    rich_menu_to_a_create = RichMenu(
+        size=RichMenuSize(width=rich_menu_object_a['size']['width'], height=rich_menu_object_a['size']['height']),
+        selected=rich_menu_object_a['selected'],
+        name=rich_menu_object_a['name'],
+        chat_bar_text=rich_menu_object_a['name'],
+        areas=areas
+    )
 
-#     rich_menu_a_id = line_bot_api.create_rich_menu(rich_menu=rich_menu_to_a_create)
+    rich_menu_a_id = line_bot_api.create_rich_menu(rich_menu=rich_menu_to_a_create)
 
-#     # 3. Upload image to rich menu A
-#     with open('./img/richmenu-a.png', 'rb') as f:
-#         line_bot_api.set_rich_menu_image(rich_menu_a_id, 'image/png', f)
+    # 3. Upload image to rich menu A
+    with open('./img/richmenu-a.png', 'rb') as f:
+        line_bot_api.set_rich_menu_image(rich_menu_a_id, 'image/png', f)
 
-#     print('success')
+    print('success')
 
 
-# main()
+main()
