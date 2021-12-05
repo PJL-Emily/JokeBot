@@ -1,19 +1,19 @@
 import os
 from flask import Flask, abort, request
-
+from datetime import datetime
 # https://github.com/line/line-bot-sdk-python
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from linebot.models import (
-    RichMenu,
-    RichMenuArea,
-    RichMenuSize,
-    RichMenuBounds,
-    URIAction
-)
-from linebot.models.actions import RichMenuSwitchAction
-from linebot.models.rich_menu import RichMenuAlias
+# from linebot.models import (
+#     RichMenu,
+#     RichMenuArea,
+#     RichMenuSize,
+#     RichMenuBounds,
+#     URIAction
+# )
+# from linebot.models.actions import RichMenuSwitchAction
+# from linebot.models.rich_menu import RichMenuAlias
 
 app = Flask(__name__)
 
