@@ -73,7 +73,7 @@ def handle_message(event):
         reply = '恭喜完成' + task_name + '！你好棒～～'
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
     elif get_message == choice_work_text: 
-        reply = "好，來吧！首先跟我說待辦事項標題"
+        reply = "好，來吧！跟我說說你的待辦項目和截止時間～"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))        
     elif get_message == choice_ddl_text: 
         reply = "未完成事項有：\n2021-12-8 MDS proposal\n2021-12-10 OR hw8"
