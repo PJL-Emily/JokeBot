@@ -10,6 +10,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from flask.json import JSONEncoder
 import pymongo
 from bson import json_util
+# import configparser
 
 class MongoJSONEncoder(JSONEncoder):
     def default(self, obj): 
@@ -18,13 +19,17 @@ class MongoJSONEncoder(JSONEncoder):
 app = Flask(__name__)
 app.json_encoder = MongoJSONEncoder
 
+# load_dotenv()
+# config = configparser.ConfigParser()
+# config.read('./config.ini')
+# line_bot_api = LineBotApi(config.get('line-bot', 'CHANNEL_ACCESS_TOKEN'))
+# handler = WebhookHandler(config.get('line-bot', 'CHANNEL_SECRET'))
+# client = pymongo.MongoClient(config.getenv('mongo', "MONGO_URI"))
+
 line_bot_api = LineBotApi(os.environ.get("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.environ.get("CHANNEL_SECRET"))
 client = pymongo.MongoClient(os.environ.get("MONGO_URI"))
 db = client.JokeBot
-
-# line_bot_api = LineBotApi(config.get('line-bot', 'CHANNEL_ACCESS_TOKEN'))
-# handler = WebhookHandler(config.get('line-bot', 'CHANNEL_SECRET'))
 
 @app.route("/", methods=["GET", "POST"])
 def callback():
@@ -44,22 +49,22 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     get_message = event.message.text
-    if db.chat_state.find_one({ "time": "current" }).state == "task":
-        step = db.chat_state.find_one({ "time": "current" }).step
-        reply = db.choices.find_one({ "name": 'task'}).sys_replies[step]
+    if db.chat_state.find_one({ "time": "current" })["state"] == "task":
+        step = db.chat_state.find_one({ "time": "current" })["step"]
+        reply = db.choices.find_one({ "name": 'task'})["sys_replies"][step]
         step += 1
-        if step >= len(db.choices.find_one({ "name": 'task'}).sys_replies):
+        if step >= len(db.choices.find_one({ "name": 'task'})["sys_replies"]):
             result = db.chat_state.update_one({ "time": "current" }, { "$set": { "state": "general", "step": 0 } })
         else:
             result = db.chat_state.update_one({ "time": "current" }, { "$set": { "state": "task", "step": step } })
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))        
     # see if there's event from rich-menu
     # choices = ['task', 'deadline', 'joke']:
-    elif get_message == db.choices.find_one({ "name": 'task' }).usr_utter:
+    elif get_message == db.choices.find_one({ "name": 'task' })["usr_utter"]:
         result = db.chat_state.update_one({ "time": "current" }, { "$set": { "state": "task", "step": 0 } })
-        reply = db.choices.find_one({ "name": 'task' }).sys_replies[0]
+        reply = db.choices.find_one({ "name": 'task' })["sys_replies"][0]
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
-    elif get_message == db.choices.find_one({ "name": 'dealine' }).usr_utter:
+    elif get_message == db.choices.find_one({ "name": 'dealine' })["usr_utter"]:
         result = db.chat_state.update_one({ "time": "current" }, { "$set": { "state": "deadline", "step": 0 } })
         reply = "還沒完成的事項有：\n"
         todos = ""
@@ -73,7 +78,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
     elif get_message == db.choices.find_one({ "name": 'joke' }).usr_utter:
         result = db.chat_state.update_one({ "time": "current" }, { "$set": { "state": "joke", "step": 0 } })
-        reply = db.jokes.find_one().content
+        reply = db.jokes.find_one()["content"]
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"{reply}"))
     
     # see if any finished task is reported
